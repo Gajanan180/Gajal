@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Order #{{ order.pk }}{% endblock %}
+
+{% block content %}
+<h2>Order #{{ order.pk }}</h2>
+<div class="card shadow">
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p><strong>Restaurant:</strong> {{ order.store.name }}</p>
+                <p><strong>Status:</strong> <span class="badge bg-primary">{{ order.get_status_display }}</span></p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Date:</strong> {{ order.created_at|date:"M d, Y H:i" }}</p>
+                <p><strong>Total:</strong> ₹{{ order.total_amount }}</p>
+            </div>
+        </div>
+        <p><strong>Delivery Address:</strong> {{ order.delivery_address }}</p>
+        <hr>
+        <h5>Items</h5>
+        <ul class="list-group list-group-flush mb-3">
+            {% for item in order.items.all %}
+            <li class="list-group-item d-flex justify-content-between">
+                {{ item.food_name }} x {{ item.quantity }}
+                <span>₹{{ item.subtotal }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% if order.payment %}
+        <p><strong>Payment:</strong> {{ order.payment.get_method_display }} — {{ order.payment.get_status_display }}
+            {% if order.payment.transaction_id %}(TXN: {{ order.payment.transaction_id }}){% endif %}
+        </p>
+        {% elif user.is_customer and order.customer == user %}
+        <a href="{% url 'payments:pay' order.pk %}" class="btn btn-success">Pay Now</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment — Order #{{ order.pk }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="content-card mb-4 text-center">
+            <p class="text-muted mb-1">Amount to pay</p>
+            <h1 class="food-price display-4">₹{{ order.total_amount }}</h1>
+            <p class="text-muted small">Order #{{ order.pk }}</p>
+        </div>
+        <div class="content-card">
+            <h5 class="fw-bold mb-4">Choose payment method</h5>
+            <form method="post" id="payment-form">
+                {% csrf_token %}
+                {{ form.method }}
+
+                <div id="card-fields" class="mt-3" style="display:none;">
+                    <div class="alert alert-light border small"><i class="bi bi-info-circle me-1"></i> Test payment — no real charges</div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Card Number</label>
+                        {{ form.card_number }}
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">Expiry</label>
+                            {{ form.card_expiry }}
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-semibold">CVV</label>
+                            {{ form.card_cvv }}
+                        </div>
+                    </div>
+                </div>
+
+                <div id="upi-info" class="mt-3" style="display:none;">
+                    <div class="text-center p-4 rounded" style="background:var(--primary-light);">
+                        <i class="bi bi-qr-code display-4" style="color:var(--primary)"></i>
+                        <p class="mt-2 mb-1 fw-semibold">Scan & Pay via UPI</p>
+                        <p class="text-muted small mb-0">merchant@gajalfood@upi</p>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom btn-lg w-100 mt-4 py-3">
+                    <i class="bi bi-shield-check me-1"></i> Pay ₹{{ order.total_amount }}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('input[name="method"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.getElementById('card-fields').style.display = this.value === 'card' ? 'block' : 'none';
+        document.getElementById('upi-info').style.display = (this.value === 'gpay' || this.value === 'phonepe') ? 'block' : 'none';
+    });
+});
+</script>
+{% endblock %}

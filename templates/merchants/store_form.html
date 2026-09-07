@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if store %}Edit Store{% else %}Setup Store{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <h2 class="page-title mb-1">{% if store %}Edit Store{% else %}Create Your Restaurant{% endif %}</h2>
+            <p class="text-muted mb-4">Add your restaurant details and a cover photo to attract customers.</p>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-primary-custom">Save Store</button>
+                    <a href="{% url 'merchants:dashboard' %}" class="btn btn-outline-custom">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

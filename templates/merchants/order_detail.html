@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Order #{{ order.pk }}{% endblock %}
+
+{% block content %}
+<h2>Order #{{ order.pk }}</h2>
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <p><strong>Customer:</strong> {{ order.customer.username }}</p>
+                <p><strong>Address:</strong> {{ order.delivery_address }}</p>
+                <p><strong>Total:</strong> ₹{{ order.total_amount }}</p>
+                <p><strong>Status:</strong> <span class="badge bg-primary">{{ order.get_status_display }}</span></p>
+                <hr>
+                <h5>Items</h5>
+                <ul class="list-group list-group-flush">
+                    {% for item in order.items.all %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        {{ item.food_name }} x {{ item.quantity }}
+                        <span>₹{{ item.subtotal }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5>Update Status</h5>
+                <form method="post">
+                    {% csrf_token %}
+                    <select name="status" class="form-select mb-3">
+                        {% for value, label in order.Status.choices %}
+                        <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary w-100">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

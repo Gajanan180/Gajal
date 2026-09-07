@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders — Gajal Food{% endblock %}
+
+{% block content %}
+<h1 class="page-title mb-4">My Orders</h1>
+
+{% if orders %}
+<div class="content-card p-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-modern mb-0">
+            <thead><tr><th>Order</th><th>Restaurant</th><th>Amount</th><th>Status</th><th>Date</th><th></th></tr></thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td class="fw-semibold">#{{ order.pk }}</td>
+                    <td>{{ order.store.name }}</td>
+                    <td class="fw-semibold">₹{{ order.total_amount }}</td>
+                    <td><span class="badge-status bg-light text-dark">{{ order.get_status_display }}</span></td>
+                    <td class="text-muted small">{{ order.created_at|date:"M d, Y" }}</td>
+                    <td><a href="{% url 'orders:order_detail' order.pk %}" class="btn btn-sm btn-outline-custom">View</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-state-icon"><i class="bi bi-receipt"></i></div>
+    <h3>No orders yet</h3>
+    <p class="text-muted">Hungry? Browse restaurants and place your first order.</p>
+    <a href="{% url 'home' %}" class="btn btn-primary-custom mt-2">Browse Restaurants</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load food_extras %}
+
+{% block title %}{{ store.name }} — Order Online{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block hero %}
+<div class="store-page-header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Restaurants</a></li>
+                <li class="breadcrumb-item active">{{ store.name }}</li>
+            </ol>
+        </nav>
+        <h1>{{ store.name }}</h1>
+        <div class="store-info-row">
+            <span class="rating-badge"><i class="bi bi-star-fill"></i> {{ store.pk|rating_display }}</span>
+            <span>•</span>
+            <span>{{ store.pk|delivery_time }}</span>
+            <span>•</span>
+            <span>{{ store.pk|cost_for_two }}</span>
+            <span>•</span>
+            <span><i class="bi bi-geo-alt me-1"></i>{{ store.address|truncatewords:8 }}</span>
+        </div>
+        <div class="offer-strip mt-2">
+            <i class="bi bi-patch-check-fill"></i> {{ store.pk|offer_text }}
+        </div>
+    </div>
+</div>
+
+{% if categories %}
+<div class="category-tabs">
+    <button class="category-tab active" data-target="all">Full Menu</button>
+    {% for cat in categories %}
+    <button class="category-tab" data-target="cat-{{ cat.pk }}">{{ cat.name }}</button>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container pb-5">
+    <div class="menu-layout">
+        <div class="menu-items-col">
+            {% if foods %}
+                {% regroup foods by category as food_groups %}
+                {% if categories %}
+                    {% for group in food_groups %}
+                    <div class="menu-category-section" id="{% if group.grouper %}cat-{{ group.grouper.pk }}{% else %}uncategorized{% endif %}">
+                        <h3 class="menu-section-title">{% if group.grouper %}{{ group.grouper.name }}{% else %}Recommended{% endif %} ({{ group.list|length }})</h3>
+                        {% for food in group.list %}
+                        <div class="menu-item">
+                            <div class="menu-item-info">
+                                <div class="veg-indicator"></div>
+                                <h4>{{ food.name }}</h4>
+                                <div class="menu-price">₹{{ food.price }}</div>
+                                <p>{{ food.description|truncatewords:20|default:"Made fresh with premium ingredients. A customer favourite." }}</p>
+                            </div>
+                            <div class="menu-item-image">
+                                <img src="{{ food|food_image }}" alt="{{ food.name }}" loading="lazy">
+                                {% if user.is_authenticated and user.is_customer %}
+                                <a href="{% url 'orders:add_to_cart' food.pk %}" class="btn-add">Add</a>
+                                {% elif not user.is_authenticated %}
+                                <a href="{% url 'accounts:login' %}" class="btn-add">Add</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="menu-category-section" id="all">
+                        <h3 class="menu-section-title">Recommended ({{ foods|length }})</h3>
+                        {% for food in foods %}
+                        <div class="menu-item">
+                            <div class="menu-item-info">
+                                <div class="veg-indicator"></div>
+                                <h4>{{ food.name }}</h4>
+                                <div class="menu-price">₹{{ food.price }}</div>
+                                <p>{{ food.description|truncatewords:20|default:"Made fresh with premium ingredients." }}</p>
+                            </div>
+                            <div class="menu-item-image">
+                                <img src="{{ food|food_image }}" alt="{{ food.name }}" loading="lazy">
+                                {% if user.is_authenticated and user.is_customer %}
+                                <a href="{% url 'orders:add_to_cart' food.pk %}" class="btn-add">Add</a>
+                                {% elif not user.is_authenticated %}
+                                <a href="{% url 'accounts:login' %}" class="btn-add">Add</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="bi bi-egg-fried"></i></div>
+                <h3>Menu coming soon</h3>
+                <p class="text-muted">This restaurant is preparing their menu.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if user.is_authenticated and user.is_customer %}
+        <aside class="cart-sidebar">
+            <div class="cart-sidebar-header">
+                <i class="bi bi-bag-fill me-2"></i> Your Cart
+            </div>
+            <div class="cart-sidebar-body">
+                {% if cart_items %}
+                    {% for item in cart_items %}
+                    <div class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom">
+                        <div>
+                            <div class="fw-semibold small">{{ item.food.name }}</div>
+                            <div class="text-muted small">Qty: {{ item.quantity }}</div>
+                        </div>
+                        <div class="fw-bold small">₹{{ item.subtotal }}</div>
+                    </div>
+                    {% endfor %}
+                    <div class="d-flex justify-content-between fw-bold mb-3">
+                        <span>Subtotal</span>
+                        <span>₹{{ cart_total }}</span>
+                    </div>
+                    <a href="{% url 'orders:checkout' %}" class="btn btn-primary-custom w-100">Checkout</a>
+                    <a href="{% url 'orders:cart' %}" class="btn btn-outline-custom w-100 mt-2 btn-sm">View Full Cart</a>
+                {% else %}
+                    <div class="cart-sidebar-empty">
+                        <i class="bi bi-bag"></i>
+                        <p class="mb-0">Your cart is empty.<br>Add items from the menu.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </aside>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

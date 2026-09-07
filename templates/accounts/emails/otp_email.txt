@@ -1,0 +1,9 @@
+Hello,
+
+Your OTP for {{ purpose }} on Gajal Food is:
+
+{{ otp }}
+
+This OTP is valid for 10 minutes. Do not share it with anyone.
+
+— Gajal Food Team

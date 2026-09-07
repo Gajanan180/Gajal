@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Categories — Gajal Food{% endblock %}
+
+{% block content %}
+<h2><i class="bi bi-tags"></i> Categories — {{ store.name }}</h2>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <h5>Add Category</h5>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-primary btn-sm">Add</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-7">
+        {% if categories %}
+        <ul class="list-group">
+            {% for cat in categories %}
+            <li class="list-group-item d-flex justify-content-between">
+                {{ cat.name }}
+                <span class="badge bg-secondary">{{ cat.food_items.count }} items</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted">No categories yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

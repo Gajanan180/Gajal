@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Cart — Gajal Food{% endblock %}
+
+{% block content %}
+<h1 class="section-title mb-4">Your Cart</h1>
+
+{% if mixed_stores %}
+<div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-2"></i>Order from one restaurant at a time.</div>
+{% endif %}
+
+{% if items %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="content-card p-0 overflow-hidden">
+            {% for item in items %}
+            <div class="d-flex align-items-center gap-3 p-3 {% if not forloop.last %}border-bottom{% endif %}">
+                <div class="flex-grow-1">
+                    <div class="fw-bold">{{ item.food.name }}</div>
+                    <div class="text-muted small">{{ store.name|default:"Restaurant" }}</div>
+                    <div class="food-price mt-1">₹{{ item.food.price }}</div>
+                </div>
+                <form method="post" action="{% url 'orders:update_cart' item.food.pk %}" class="d-flex align-items-center gap-2">
+                    {% csrf_token %}
+                    <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="btn btn-sm btn-outline-secondary rounded-circle" style="width:32px;height:32px;padding:0;">−</button>
+                    <span class="fw-bold px-2">{{ item.quantity }}</span>
+                    <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="btn btn-sm btn-outline-secondary rounded-circle" style="width:32px;height:32px;padding:0;">+</button>
+                </form>
+                <div class="fw-bold" style="min-width:60px;text-align:right;">₹{{ item.subtotal }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="content-card">
+            <h5 class="fw-bold mb-3">Bill Details</h5>
+            <div class="d-flex justify-content-between mb-2 text-muted small">
+                <span>Item Total</span><span>₹{{ total }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2 text-muted small">
+                <span>Delivery Fee</span><span class="text-success fw-semibold">FREE</span>
+            </div>
+            <div class="d-flex justify-content-between mb-2 text-muted small">
+                <span>Platform Fee</span><span>₹5</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between mb-4">
+                <span class="fw-bold">TO PAY</span>
+                <span class="food-price">₹{{ total }}</span>
+            </div>
+            {% if store and not mixed_stores %}
+            <a href="{% url 'orders:checkout' %}" class="btn btn-primary-custom w-100 py-2">
+                Proceed to Checkout
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-state-icon"><i class="bi bi-bag"></i></div>
+    <h3>Your cart is empty</h3>
+    <p class="text-muted">Good food is always cooking! Go ahead and order from top restaurants.</p>
+    <a href="{% url 'home' %}" class="btn btn-primary-custom mt-2">Browse Restaurants</a>
+</div>
+{% endif %}
+{% endblock %}
